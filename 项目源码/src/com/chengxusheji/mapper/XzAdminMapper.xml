@@ -1,0 +1,49 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.XzAdminMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加行政管理记录 -->
+	<insert id="addXzAdmin" parameterType="xzAdmin">
+		insert into t_xzAdmin(xzUserName,password,companyObj,name,sex,birthDate,telephone,xzMemo) values 
+		(#{xzUserName},#{password},#{companyObj.companyId},#{name},#{sex},#{birthDate},#{telephone},#{xzMemo})
+	</insert>
+
+	<!-- 按照查询条件分页查询行政管理记录 -->
+	<select id="queryXzAdmin" resultMap="xzAdminMap" >
+		select t_xzAdmin.* from t_xzAdmin,t_company ${where} and t_xzAdmin.companyObj = t_company.companyId limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="xzAdminMap" type="xzAdmin">
+        <id property="xzUserName" column="xzUserName" />
+        <association property="companyObj" column="companyObj" select="com.chengxusheji.mapper.CompanyMapper.getCompany" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有行政管理记录 -->
+	<select id="queryXzAdminList" resultMap="xzAdminMap" >
+		select t_xzAdmin.* from t_xzAdmin,t_company ${where} and t_xzAdmin.companyObj = t_company.companyId
+	</select>
+
+    <!-- 按照查询条件的行政管理记录数 -->
+	<select id="queryXzAdminCount" resultType="int">
+		select count(*) from t_xzAdmin,t_company ${where} and t_xzAdmin.companyObj = t_company.companyId
+	</select>
+
+	<!-- 根据主键查询某个行政管理记录 -->
+	<select id="getXzAdmin" parameterType="string" resultMap="xzAdminMap">
+		select * from t_xzAdmin where t_xzAdmin.xzUserName = #{xzUserName}
+	</select>
+
+	<!-- 更新行政管理记录 -->
+	<update id="updateXzAdmin" parameterType="xzAdmin">
+		update t_xzAdmin set password=#{password},companyObj=#{companyObj.companyId},name=#{name},sex=#{sex},birthDate=#{birthDate},telephone=#{telephone},xzMemo=#{xzMemo} where xzUserName = #{xzUserName}
+	</update>
+
+	<!-- 删除行政管理记录 -->
+	<delete id="deleteXzAdmin" parameterType="string">
+		delete from t_xzAdmin where xzUserName=#{xzUserName}
+	</delete>
+
+</mapper>

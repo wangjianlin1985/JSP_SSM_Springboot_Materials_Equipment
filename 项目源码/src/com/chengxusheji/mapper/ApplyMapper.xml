@@ -1,0 +1,51 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.ApplyMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加物资申领记录 -->
+	<insert id="addApply" parameterType="apply">
+		insert into t_apply(productObj,supplierObj,companyObj,applyCount,sqr,sqsj,applyState,shenpiren,cksj) values 
+		(#{productObj.productId},#{supplierObj.supplierId},#{companyObj.companyId},#{applyCount},#{sqr},#{sqsj},#{applyState},#{shenpiren},#{cksj})
+	</insert>
+
+	<!-- 按照查询条件分页查询物资申领记录 -->
+	<select id="queryApply" resultMap="applyMap" >
+		select t_apply.* from t_apply,t_company,t_product,t_supplier ${where} and t_apply.productObj = t_product.productId and t_apply.supplierObj = t_supplier.supplierId and t_apply.companyObj = t_company.companyId limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="applyMap" type="apply">
+        <id property="applyId" column="applyId" />
+        <association property="productObj" column="productObj" select="com.chengxusheji.mapper.ProductMapper.getProduct" />
+        <association property="supplierObj" column="supplierObj" select="com.chengxusheji.mapper.SupplierMapper.getSupplier" />
+        <association property="companyObj" column="companyObj" select="com.chengxusheji.mapper.CompanyMapper.getCompany" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有物资申领记录 -->
+	<select id="queryApplyList" resultMap="applyMap" >
+		select t_apply.* from t_apply,t_company,t_product,t_supplier ${where} and t_apply.productObj = t_product.productId and t_apply.supplierObj = t_supplier.supplierId and t_apply.companyObj = t_company.companyId
+	</select>
+
+    <!-- 按照查询条件的物资申领记录数 -->
+	<select id="queryApplyCount" resultType="int">
+		select count(*) from t_apply,t_company,t_product,t_supplier ${where} and t_apply.productObj = t_product.productId and t_apply.supplierObj = t_supplier.supplierId and t_apply.companyObj = t_company.companyId
+	</select>
+
+	<!-- 根据主键查询某个物资申领记录 -->
+	<select id="getApply" parameterType="int" resultMap="applyMap">
+		select * from t_apply where t_apply.applyId = #{applyId}
+	</select>
+
+	<!-- 更新物资申领记录 -->
+	<update id="updateApply" parameterType="apply">
+		update t_apply set productObj=#{productObj.productId},supplierObj=#{supplierObj.supplierId},companyObj=#{companyObj.companyId},applyCount=#{applyCount},sqr=#{sqr},sqsj=#{sqsj},applyState=#{applyState},shenpiren=#{shenpiren},cksj=#{cksj} where applyId = #{applyId}
+	</update>
+
+	<!-- 删除物资申领记录 -->
+	<delete id="deleteApply" parameterType="int">
+		delete from t_apply where applyId=#{applyId}
+	</delete>
+
+</mapper>

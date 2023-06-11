@@ -1,0 +1,50 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.ProductMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加物资记录 -->
+	<insert id="addProduct" parameterType="product">
+		insert into t_product(productName,supplierObj,companyObj,productPhoto,productPrice,productCount,productDesc,luruTime) values 
+		(#{productName},#{supplierObj.supplierId},#{companyObj.companyId},#{productPhoto},#{productPrice},#{productCount},#{productDesc},#{luruTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询物资记录 -->
+	<select id="queryProduct" resultMap="productMap" >
+		select t_product.* from t_product,t_company,t_supplier ${where} and t_product.supplierObj = t_supplier.supplierId and t_product.companyObj = t_company.companyId limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="productMap" type="product">
+        <id property="productId" column="productId" />
+        <association property="supplierObj" column="supplierObj" select="com.chengxusheji.mapper.SupplierMapper.getSupplier" />
+        <association property="companyObj" column="companyObj" select="com.chengxusheji.mapper.CompanyMapper.getCompany" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有物资记录 -->
+	<select id="queryProductList" resultMap="productMap" >
+		select t_product.* from t_product,t_company,t_supplier ${where} and t_product.supplierObj = t_supplier.supplierId and t_product.companyObj = t_company.companyId
+	</select>
+
+    <!-- 按照查询条件的物资记录数 -->
+	<select id="queryProductCount" resultType="int">
+		select count(*) from t_product,t_company,t_supplier ${where} and t_product.supplierObj = t_supplier.supplierId and t_product.companyObj = t_company.companyId
+	</select>
+
+	<!-- 根据主键查询某个物资记录 -->
+	<select id="getProduct" parameterType="int" resultMap="productMap">
+		select * from t_product where t_product.productId = #{productId}
+	</select>
+
+	<!-- 更新物资记录 -->
+	<update id="updateProduct" parameterType="product">
+		update t_product set productName=#{productName},supplierObj=#{supplierObj.supplierId},companyObj=#{companyObj.companyId},productPhoto=#{productPhoto},productPrice=#{productPrice},productCount=#{productCount},productDesc=#{productDesc},luruTime=#{luruTime} where productId = #{productId}
+	</update>
+
+	<!-- 删除物资记录 -->
+	<delete id="deleteProduct" parameterType="int">
+		delete from t_product where productId=#{productId}
+	</delete>
+
+</mapper>
